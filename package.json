@@ -4,7 +4,8 @@
   "description": "简单阿里云OSS客户端",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "tsc"
   },
   "repository": {
     "type": "git",
