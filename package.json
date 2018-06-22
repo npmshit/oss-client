@@ -1,10 +1,15 @@
 {
   "name": "@blueshit/oss-client",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "简单阿里云OSS客户端",
   "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "ts-node src/test.ts",
     "prepublishOnly": "tsc"
   },
   "repository": {

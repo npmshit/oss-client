@@ -23,6 +23,17 @@ export interface IOption {
 
 export type METHOD = "PUT" | "GET" | "POST" | "HEAD" | "DELETE";
 
+export interface IHeader {
+  [header: string]: number | string | string[] | undefined;
+}
+export interface IReply {
+  code: number;
+  headers: IHeader;
+  buffer?: Buffer;
+  message?: string;
+  body?: string;
+}
+
 export default class OSSClient {
   private accessKeyId: string;
   private accessKeySecret: string;
@@ -48,19 +59,27 @@ export default class OSSClient {
       .digest("base64");
   }
 
-  private request(params: any, data: Buffer | Readable) {
+  private request(params: any, data?: Buffer | Readable, raw = false): Promise<IReply> {
     // eslint-disable-next-line
     return new Promise((resolve, reject) => {
       const req = http.request(params, response => {
         const buffers: any[] = [];
         response.on("data", chunk => buffers.push(chunk));
         response.on("end", () => {
-          const res = Buffer.concat(buffers).toString("utf8");
-          if (response.statusCode === 200) return resolve(res);
-          return reject({ httpcode: response.statusCode, code: response.statusCode, message: res });
+          const buf = Buffer.concat(buffers);
+          if (response.statusCode === 200) {
+            return resolve({
+              code: response.statusCode,
+              headers: response.headers,
+              buffer: buf,
+              body: raw ? "" : buf.toString("utf8")
+            });
+          }
+          const res = buf.toString("utf8");
+          return reject({ code: response.statusCode, headers: response.headers, message: res });
         });
         response.on("error", e => {
-          return reject({ httpcode: response.statusCode, code: response.statusCode, message: "" + e });
+          return reject({ code: response.statusCode, headers: response.headers, message: "" + e });
         });
       });
       req.on("error", err => {
@@ -81,19 +100,35 @@ export default class OSSClient {
     return `OSS ${this.accessKeyId}:${this.getHash(signString)}`;
   }
 
-  putObject(key: string, data: Buffer | Readable) {
+  private requestObject(method: METHOD, key: string, data?: Buffer | Readable, raw = false) {
     const date = new Date().toUTCString();
     const fielkey = this.prefix ? this.prefix + key : key;
-    const sign = this.sign("PUT", "", "", date, fielkey);
+    const sign = this.sign(method, "", "", date, fielkey);
     const option = {
       hostname: `${this.bucket}.${this.endpoint}`,
       path: `/${fielkey}`,
-      method: "PUT",
+      method: method,
       headers: {
         Date: date,
         Authorization: sign
       }
     };
-    return this.request(option, data);
+    return this.request(option, data, raw);
+  }
+
+  putObject(key: string, data: Buffer | Readable) {
+    return this.requestObject("PUT", key, data);
+  }
+
+  getObject(key: string) {
+    return this.requestObject("GET", key, undefined, true);
+  }
+
+  deleteObject(key: string) {
+    return this.requestObject("DELETE", key + "?objectMeta");
+  }
+
+  objectMeta(key: string) {
+    return this.requestObject("GET", key + "?objectMeta");
   }
 }
