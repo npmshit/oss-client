@@ -48,7 +48,7 @@ export default class OSSClient {
       .digest("base64");
   }
 
-  private request(params: any, data: Buffer | string | Readable) {
+  private request(params: any, data: Buffer | Readable) {
     // eslint-disable-next-line
     return new Promise((resolve, reject) => {
       const req = http.request(params, response => {
@@ -81,7 +81,7 @@ export default class OSSClient {
     return `OSS ${this.accessKeyId}:${this.getHash(signString)}`;
   }
 
-  putObject(key: string, data: Buffer | string | Readable) {
+  putObject(key: string, data: Buffer | Readable) {
     const date = new Date().toUTCString();
     const fielkey = this.prefix ? this.prefix + key : key;
     const sign = this.sign("PUT", "", "", date, fielkey);
