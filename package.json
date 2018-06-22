@@ -1,0 +1,27 @@
+{
+  "name": "@blueshit/oss-client",
+  "version": "0.1.0",
+  "description": "简单阿里云OSS客户端",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/npmshit/oss-client.git"
+  },
+  "keywords": [
+    "oss-client",
+    "aliyun-oss"
+  ],
+  "author": "Yourtion <yourtion@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/npmshit/oss-client/issues"
+  },
+  "homepage": "https://github.com/npmshit/oss-client#readme",
+  "devDependencies": {
+    "@types/node": "^10.3.4",
+    "typescript": "^2.9.2"
+  }
+}
