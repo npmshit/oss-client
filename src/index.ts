@@ -19,6 +19,8 @@ export interface IOption {
   endpoint: string;
   /** 前缀 */
   prefix?: string;
+  /** 自定义访问地址 */
+  cdn?: string;
 }
 
 export type METHOD = "PUT" | "GET" | "POST" | "HEAD" | "DELETE";
@@ -40,6 +42,7 @@ export default class OSSClient {
   private bucket: string;
   private endpoint: string;
   private prefix?: string;
+  private cdn: string;
 
   constructor(options: IOption) {
     assert(typeof options.accessKeyId === "string", "请配置 AccessKeyId");
@@ -50,6 +53,7 @@ export default class OSSClient {
     this.bucket = options.bucket;
     this.endpoint = options.endpoint || "oss-cn-hangzhou.aliyuncs.com";
     this.prefix = options.prefix;
+    this.cdn = options.cdn || `http://${this.bucket}.${this.endpoint}`;
   }
 
   private getHash(data: string) {
@@ -87,8 +91,13 @@ export default class OSSClient {
   }
 
   sign(method: METHOD, md5: string, contentType: string, date: string, name: string) {
-    const signString = [method, md5, contentType, date, `/${this.bucket}/${name}`].join("\n");
+    const signString = [method, md5, contentType, date, `/${this.bucket}/${name}`].join(" ");
     return `OSS ${this.accessKeyId}:${this.getHash(signString)}`;
+  }
+
+  signUrl(name: string, expires: number) {
+    const signString = ["GET", "", "", expires, `/${this.bucket}/${name}`].join("\n");
+    return encodeURIComponent(this.getHash(signString));
   }
 
   private requestObject(method: METHOD, key: string, data?: Buffer | Readable, raw = false) {
@@ -121,5 +130,20 @@ export default class OSSClient {
 
   objectMeta(key: string) {
     return this.requestObject("GET", key + "?objectMeta");
+  }
+
+  headObject(key: string) {
+    return this.requestObject("HEAD", key);
+  }
+
+  getSignUrl(key: string, ttl = 60) {
+    const expires = parseInt(String(new Date().getTime() / 1000 + ttl), 10);
+    const fielkey = this.prefix ? this.prefix + key : key;
+    const query = [
+      `OSSAccessKeyId=${this.accessKeyId}`,
+      `Signature=${this.signUrl(fielkey, expires)}`,
+      `Expires=${expires}`
+    ];
+    return `${this.cdn}/${fielkey}?${query.join("&")}`;
   }
 }
