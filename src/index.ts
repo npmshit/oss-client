@@ -26,11 +26,11 @@ export type METHOD = "PUT" | "GET" | "POST" | "HEAD" | "DELETE";
 export interface IHeader {
   [header: string]: number | string | string[] | undefined;
 }
+
 export interface IReply {
   code: number;
   headers: IHeader;
   buffer?: Buffer;
-  message?: string;
   body?: string;
 }
 
@@ -60,32 +60,23 @@ export default class OSSClient {
   }
 
   private request(params: any, data?: Buffer | Readable, raw = false): Promise<IReply> {
-    // eslint-disable-next-line
     return new Promise((resolve, reject) => {
       const req = http.request(params, response => {
         const buffers: any[] = [];
         response.on("data", chunk => buffers.push(chunk));
         response.on("end", () => {
           const buf = Buffer.concat(buffers);
-          if (response.statusCode === 200) {
-            return resolve({
-              code: response.statusCode,
-              headers: response.headers,
-              buffer: buf,
-              body: raw ? "" : buf.toString("utf8")
-            });
-          }
-          const res = buf.toString("utf8");
-          return reject({ code: response.statusCode, headers: response.headers, message: res });
+          return resolve({
+            code: response.statusCode || -1,
+            headers: response.headers,
+            buffer: buf,
+            body: raw ? "" : buf.toString("utf8")
+          });
         });
-        response.on("error", e => {
-          return reject({ code: response.statusCode, headers: response.headers, message: "" + e });
-        });
+        response.on("error", err => reject(err));
       });
-      req.on("error", err => {
-        return reject(err);
-      });
-      if (typeof data === "string" || Buffer.isBuffer(data)) {
+      req.on("error", err => reject(err));
+      if (Buffer.isBuffer(data)) {
         req.end(data);
       } else if (data && typeof data.pipe === "function") {
         data.pipe(req);
