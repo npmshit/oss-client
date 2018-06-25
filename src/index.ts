@@ -40,7 +40,7 @@ export default class OSSClient {
   private accessKeyId: string;
   private accessKeySecret: string;
   private bucket: string;
-  private endpoint: string;
+  private endpoint?: string;
   private prefix?: string;
   private cdn: string;
 
@@ -48,6 +48,18 @@ export default class OSSClient {
     assert(typeof options.accessKeyId === "string", "请配置 AccessKeyId");
     assert(typeof options.accessKeySecret === "string", "请配置 AccessKeySecret");
     assert(typeof options.bucket === "string", "请配置 bucket");
+    if (options.endpoint) {
+      assert(
+        /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/.test(options.endpoint),
+        "endpoint只能配置域名"
+      );
+    }
+    if (options.cdn) {
+      assert(
+        /^(^https?:(?:\/\/)?)([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/.test(options.cdn),
+        "cdn必须配置url(最后不需要 `/`)"
+      );
+    }
     this.accessKeyId = options.accessKeyId;
     this.accessKeySecret = options.accessKeySecret;
     this.bucket = options.bucket;
@@ -61,6 +73,10 @@ export default class OSSClient {
       .createHmac("sha1", this.accessKeySecret)
       .update(data)
       .digest("base64");
+  }
+
+  private getFileKey(key: string) {
+    return this.prefix ? this.prefix + key : key;
   }
 
   private request(params: any, data?: Buffer | Readable, raw = false): Promise<IReply> {
@@ -102,7 +118,7 @@ export default class OSSClient {
 
   private requestObject(method: METHOD, key: string, data?: Buffer | Readable, raw = false) {
     const date = new Date().toUTCString();
-    const fielkey = this.prefix ? this.prefix + key : key;
+    const fielkey = this.getFileKey(key);
     const sign = this.sign(method, "", "", date, fielkey);
     const option = {
       hostname: `${this.bucket}.${this.endpoint}`,
@@ -138,7 +154,7 @@ export default class OSSClient {
 
   getSignUrl(key: string, ttl = 60) {
     const expires = parseInt(String(new Date().getTime() / 1000 + ttl), 10);
-    const fielkey = this.prefix ? this.prefix + key : key;
+    const fielkey = this.getFileKey(key);
     const query = [
       `OSSAccessKeyId=${this.accessKeyId}`,
       `Signature=${this.signUrl(fielkey, expires)}`,
