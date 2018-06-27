@@ -107,7 +107,7 @@ export default class OSSClient {
   }
 
   sign(method: METHOD, md5: string, contentType: string, date: string, name: string) {
-    const signString = [method, md5, contentType, date, `/${this.bucket}/${name}`].join(" ");
+    const signString = [method, md5, contentType, date, `/${this.bucket}/${name}`].join("\n");
     return `OSS ${this.accessKeyId}:${this.getHash(signString)}`;
   }
 
@@ -118,11 +118,11 @@ export default class OSSClient {
 
   private requestObject(method: METHOD, key: string, data?: Buffer | Readable, raw = false) {
     const date = new Date().toUTCString();
-    const fielkey = this.getFileKey(key);
-    const sign = this.sign(method, "", "", date, fielkey);
+    const filekey = this.getFileKey(key);
+    const sign = this.sign(method, "", "", date, filekey);
     const option = {
       hostname: `${this.bucket}.${this.endpoint}`,
-      path: `/${fielkey}`,
+      path: `/${filekey}`,
       method: method,
       headers: {
         Date: date,
