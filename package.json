@@ -26,8 +26,26 @@
     "url": "https://github.com/npmshit/oss-client/issues"
   },
   "homepage": "https://github.com/npmshit/oss-client#readme",
+  "peerDependencies": {
+    "@types/node": "^10.3.4"
+  },
   "devDependencies": {
+    "@types/jest": "^23.1.2",
     "@types/node": "^10.3.4",
+    "jest": "^23.2.0",
+    "ts-jest": "^22.4.6",
+    "ts-node": "^7.0.0",
     "typescript": "^2.9.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "src/test",
+    "collectCoverageFrom": [
+      "src/index.ts"
+    ],
+    "moduleFileExtensions": ["ts", "js"]
   }
+
 }

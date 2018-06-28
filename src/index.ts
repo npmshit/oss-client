@@ -141,7 +141,7 @@ export default class OSSClient {
   }
 
   deleteObject(key: string) {
-    return this.requestObject("DELETE", key + "?objectMeta");
+    return this.requestObject("DELETE", key);
   }
 
   objectMeta(key: string) {
