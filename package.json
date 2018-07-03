@@ -9,7 +9,8 @@
     "dist/index.d.ts"
   ],
   "scripts": {
-    "test": "ts-node src/test.ts",
+    "test": "jest",
+    "test:cov": "jest --coverage",
     "prepublishOnly": "tsc"
   },
   "repository": {
@@ -45,7 +46,13 @@
     "collectCoverageFrom": [
       "src/index.ts"
     ],
-    "moduleFileExtensions": ["ts", "js"]
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ]
+  },
+  "dependencies": {
+    "@types/mime": "^2.0.0",
+    "mime": "^2.3.1"
   }
-
 }
