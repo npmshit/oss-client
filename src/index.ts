@@ -108,7 +108,7 @@ export default class OSSClient {
     });
   }
 
-  sign(method: METHOD, md5: string, contentType: string = "", date: string, name: string) {
+  sign(method: METHOD, md5: string, contentType: string, date: string, name: string) {
     const signString = [method, md5, contentType, date, `/${this.bucket}/${name}`].join("\n");
     return `OSS ${this.accessKeyId}:${this.getHash(signString)}`;
   }
@@ -131,7 +131,7 @@ export default class OSSClient {
       headers: {
         Date: date,
         Authorization: sign,
-        "Content-Type": type
+        "Content-Type": type || ""
       }
     };
     return this.request(option, data, raw);
