@@ -7,6 +7,8 @@ import assert from "assert";
 import crypto from "crypto";
 import http from "http";
 import { Readable } from "stream";
+import { extname } from "path";
+import { getType } from "mime";
 
 export interface IOption {
   /** 秘钥ID */
@@ -106,7 +108,7 @@ export default class OSSClient {
     });
   }
 
-  sign(method: METHOD, md5: string, contentType: string, date: string, name: string) {
+  sign(method: METHOD, md5: string, contentType: string = "", date: string, name: string) {
     const signString = [method, md5, contentType, date, `/${this.bucket}/${name}`].join("\n");
     return `OSS ${this.accessKeyId}:${this.getHash(signString)}`;
   }
@@ -119,14 +121,17 @@ export default class OSSClient {
   private requestObject(method: METHOD, key: string, data?: Buffer | Readable, raw = false) {
     const date = new Date().toUTCString();
     const filekey = this.getFileKey(key);
-    const sign = this.sign(method, "", "", date, filekey);
+    const ext = extname(filekey);
+    const type = (method === "POST" || method === "PUT") && ext ? getType(ext.replace(".", "")) : "";
+    const sign = this.sign(method, "", type || "", date, filekey);
     const option = {
       hostname: `${this.bucket}.${this.endpoint}`,
       path: `/${filekey}`,
       method: method,
       headers: {
         Date: date,
-        Authorization: sign
+        Authorization: sign,
+        "Content-Type": type
       }
     };
     return this.request(option, data, raw);
