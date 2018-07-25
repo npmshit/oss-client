@@ -5,7 +5,7 @@
 ## Install
 
 ```javascript
-const OSSClient = require("@blueshit/oss-client");
+const OSSClient = require("@blueshit/oss-client").default;
 
 const client = new OSSClient({
   accessKeyId: "xxxxx",
