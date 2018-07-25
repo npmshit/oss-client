@@ -25,6 +25,15 @@ export interface IOption {
   cdn?: string;
 }
 
+export interface IPutOption {
+  /** contentType */
+  type?: string;
+  /** 文件名（用于计算contentType） */
+  name?: string;
+  /** 文件md5 */
+  md5?: string;
+}
+
 export type METHOD = "PUT" | "GET" | "POST" | "HEAD" | "DELETE";
 
 export interface IHeader {
@@ -119,12 +128,12 @@ export default class OSSClient {
     return encodeURIComponent(this.getHash(signString));
   }
 
-  private requestObject(method: METHOD, key: string, data?: Buffer | Readable, raw = false) {
+  private requestObject(method: METHOD, key: string, data?: Buffer | Readable, raw = false, options: IPutOption = {}) {
     const date = new Date().toUTCString();
     const filekey = this.getFileKey(key);
-    const ext = extname(filekey);
-    const type = (method === "POST" || method === "PUT") && ext ? getType(ext.replace(".", "")) : "";
-    const sign = this.sign(method, "", type || "", date, filekey);
+    const ext = extname(options.name || filekey);
+    const type = (method === "POST" || method === "PUT") && ext ? getType(ext.replace(".", "")) : options.type || "";
+    const sign = this.sign(method, options.md5 || "", type || "", date, filekey);
     const option = {
       hostname: `${this.bucket}.${this.endpoint}`,
       path: `/${filekey}`,
@@ -138,8 +147,8 @@ export default class OSSClient {
     return this.request(option, data, raw);
   }
 
-  putObject(key: string, data: Buffer | Readable) {
-    return this.requestObject("PUT", key, data);
+  putObject(key: string, data: Buffer | Readable, options?: IPutOption) {
+    return this.requestObject("PUT", key, data, false, options);
   }
 
   getObject(key: string) {
