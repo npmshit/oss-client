@@ -78,7 +78,8 @@ export default class OSSClient {
   }
 
   private getFileKey(key: string) {
-    return this.prefix ? this.prefix + key : key;
+    const res = this.prefix ? this.prefix + key : key;
+    return res.replace(/^\/+/, "");
   }
 
   private request(params: any, data?: Buffer | Readable, raw = false): Promise<IReply> {

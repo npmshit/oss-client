@@ -80,4 +80,11 @@ describe("OSSClient", async () => {
     const ret2 = await client.headObject(TEST_KEY);
     expect(ret2.code).toBe(404);
   });
+
+  test("fix: get key with multi-///", async () => {
+    (client as any).prefix = undefined;
+    const key = (client as any).getFileKey("//aa/a");
+    expect(key).toEqual("aa/a");
+    (client as any).prefix = process.env.TEST_OSS_PREFEX;
+  });
 });

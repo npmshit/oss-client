@@ -1,6 +1,6 @@
 {
   "name": "@blueshit/oss-client",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "简单阿里云OSS客户端",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
