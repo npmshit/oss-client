@@ -9,6 +9,15 @@ const client = new OSSClient({
   prefix: process.env.TEST_OSS_PREFEX!
 });
 
+const clientWithAgent = new OSSClient({
+  accessKeyId: process.env.TEST_OSS_ID!,
+  accessKeySecret: process.env.TEST_OSS_KEY!,
+  bucket: process.env.TEST_OSS_BUCKET!,
+  endpoint: process.env.TEST_OSS_ENDPOINT!,
+  prefix: process.env.TEST_OSS_PREFEX!,
+  agent: new http.Agent(),
+});
+
 const TEST_KEY = "OSSClient.data";
 const TEST_DATA = Date.now() + "";
 
@@ -60,6 +69,16 @@ describe("OSSClient", async () => {
 
   test("getObject", async () => {
     const ret = await client.getObject(TEST_KEY);
+    expect(ret.code).toBe(200);
+    expect(ret.headers.etag).toEqual(SHARE.headers.etag);
+    expect(ret.headers["last-modified"]).toEqual(SHARE.headers["last-modified"]);
+    expect(ret.headers["x-oss-hash-crc64ecma"]).toEqual(SHARE.headers["x-oss-hash-crc64ecma"]);
+    expect(ret.headers["content-md5"]).toEqual(SHARE.md5);
+    expect(ret.buffer!.toString()).toEqual(TEST_DATA);
+  });
+
+  test("getObject With Agent", async () => {
+    const ret = await clientWithAgent.getObject(TEST_KEY);
     expect(ret.code).toBe(200);
     expect(ret.headers.etag).toEqual(SHARE.headers.etag);
     expect(ret.headers["last-modified"]).toEqual(SHARE.headers["last-modified"]);

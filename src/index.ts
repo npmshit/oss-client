@@ -5,7 +5,7 @@
 
 import assert from "assert";
 import crypto from "crypto";
-import http from "http";
+import http, { Agent } from "http";
 import { Readable } from "stream";
 import { extname } from "path";
 import { getType } from "mime";
@@ -23,6 +23,8 @@ export interface IOption {
   prefix?: string;
   /** 自定义访问地址 */
   cdn?: string;
+  /** HTTP Agent */
+  agent?: Agent;
 }
 
 export interface IPutOption {
@@ -54,6 +56,7 @@ export default class OSSClient {
   private endpoint?: string;
   private prefix?: string;
   private cdn: string;
+  private agent?: Agent;
 
   constructor(options: IOption) {
     assert(typeof options.accessKeyId === "string", "请配置 AccessKeyId");
@@ -77,6 +80,7 @@ export default class OSSClient {
     this.endpoint = options.endpoint || "oss-cn-hangzhou.aliyuncs.com";
     this.prefix = options.prefix;
     this.cdn = options.cdn || `http://${this.bucket}.${this.endpoint}`;
+    this.agent = options.agent;
   }
 
   private getHash(data: string) {
@@ -142,7 +146,8 @@ export default class OSSClient {
         Date: date,
         Authorization: sign,
         "Content-Type": type || ""
-      }
+      },
+      agent: this.agent,
     };
     return this.request(option, data, raw);
   }
