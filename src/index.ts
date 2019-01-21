@@ -165,7 +165,7 @@ export default class OSSClient {
   }
 
   objectMeta(key: string) {
-    return this.requestObject("GET", key + "?objectMeta");
+    return this.requestObject("HEAD", key + "?objectMeta");
   }
 
   headObject(key: string) {

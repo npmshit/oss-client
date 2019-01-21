@@ -1,6 +1,6 @@
 {
   "name": "@blueshit/oss-client",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "简单阿里云OSS客户端",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -48,7 +48,8 @@
     ],
     "moduleFileExtensions": [
       "ts",
-      "js"
+      "js",
+      "json"
     ]
   },
   "dependencies": {

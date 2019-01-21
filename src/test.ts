@@ -15,7 +15,7 @@ const clientWithAgent = new OSSClient({
   bucket: process.env.TEST_OSS_BUCKET!,
   endpoint: process.env.TEST_OSS_ENDPOINT!,
   prefix: process.env.TEST_OSS_PREFEX!,
-  agent: new http.Agent(),
+  agent: new http.Agent({ keepAlive: true, keepAliveMsecs: 10000 }),
 });
 
 const TEST_KEY = "OSSClient.data";
@@ -51,6 +51,14 @@ describe("OSSClient", async () => {
 
   test("objectMeta", async () => {
     const ret = await client.objectMeta(TEST_KEY);
+    expect(ret.code).toBe(200);
+    expect(ret.headers.etag).toEqual(SHARE.headers.etag);
+    expect(ret.headers["x-oss-hash-crc64ecma"]).toEqual(SHARE.headers["x-oss-hash-crc64ecma"]);
+    SHARE.headers = ret.headers;
+  });
+
+  test("objectMeta With Agent", async () => {
+    const ret = await clientWithAgent.objectMeta(TEST_KEY);
     expect(ret.code).toBe(200);
     expect(ret.headers.etag).toEqual(SHARE.headers.etag);
     expect(ret.headers["x-oss-hash-crc64ecma"]).toEqual(SHARE.headers["x-oss-hash-crc64ecma"]);
