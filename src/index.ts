@@ -6,6 +6,7 @@
 import assert from "assert";
 import crypto from "crypto";
 import http, { Agent } from "http";
+import https from "https";
 import { Readable } from "stream";
 import { extname } from "path";
 import { getType } from "mime";
@@ -181,5 +182,14 @@ export default class OSSClient {
       `Expires=${expires}`
     ];
     return `${this.cdn}/${fielkey}?${query.join("&")}`;
+  }
+
+  putObjectWithUrl(key: string, url: string, options?: IPutOption): Promise<string> {
+    return new Promise((resolve) => {
+      (url.indexOf("https") === 0 ? https : http).get(url, async (res) => {
+        await this.putObject(key, res, options);
+        resolve(this.getSignUrl(key));
+      });
+    });
   }
 }
