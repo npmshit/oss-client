@@ -70,7 +70,7 @@ export default class OSSClient {
     }
     if (options.cdn) {
       assert(
-        /^(^https?:(?:\/\/)?)([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/.test(options.cdn),
+        /^((^https?:)?(?:\/\/)?)([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/.test(options.cdn),
         "cdn必须配置url(最后不需要 `/`)"
       );
     }

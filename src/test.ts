@@ -6,7 +6,7 @@ const client = new OSSClient({
   accessKeySecret: process.env.TEST_OSS_KEY!,
   bucket: process.env.TEST_OSS_BUCKET!,
   endpoint: process.env.TEST_OSS_ENDPOINT!,
-  prefix: process.env.TEST_OSS_PREFEX!
+  prefix: process.env.TEST_OSS_PREFEX!,
 });
 
 const clientWithAgent = new OSSClient({
