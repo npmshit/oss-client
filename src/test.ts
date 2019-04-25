@@ -20,7 +20,7 @@ const clientWithAgent = new OSSClient({
 
 const TEST_KEY = "OSSClient.data";
 const TEST_DATA = Date.now() + "";
-const TEST_URL = "http://mat1.gtimg.com/pingjs/ext2020/qqindex2018/dist/img/qq_logo_2x.png"
+const TEST_URL = "http://mat1.gtimg.com/pingjs/ext2020/qqindex2018/dist/img/qq_logo_2x.png";
 
 function getFile(url: string) {
   return new Promise((resolve, reject) => {
@@ -110,10 +110,10 @@ describe("OSSClient", async () => {
   });
 
   test("putObjectWithUrl", async () => {
-    const url = await client.putObjectWithUrl(TEST_KEY, TEST_URL)
+    const url = await client.putObjectWithUrl(TEST_KEY, TEST_URL);
     const org = await getFile(url);
-    const dis = await getFile(TEST_URL)
-    expect(dis).toEqual(org)
+    const dis = await getFile(TEST_URL);
+    expect(dis).toEqual(org);
   });
 
   test("fix: get key with multi-///", async () => {

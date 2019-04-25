@@ -107,7 +107,7 @@ export default class OSSClient {
             code: response.statusCode || -1,
             headers: response.headers,
             buffer: buf,
-            body: raw ? "" : buf.toString("utf8")
+            body: raw ? "" : buf.toString("utf8"),
           });
         });
         response.on("error", err => reject(err));
@@ -146,7 +146,7 @@ export default class OSSClient {
       headers: {
         Date: date,
         Authorization: sign,
-        "Content-Type": type || ""
+        "Content-Type": type || "",
       },
       agent: this.agent,
     };
@@ -179,14 +179,14 @@ export default class OSSClient {
     const query = [
       `OSSAccessKeyId=${this.accessKeyId}`,
       `Signature=${this.signUrl(fielkey, expires)}`,
-      `Expires=${expires}`
+      `Expires=${expires}`,
     ];
     return `${this.cdn}/${fielkey}?${query.join("&")}`;
   }
 
   putObjectWithUrl(key: string, url: string, options?: IPutOption): Promise<string> {
-    return new Promise((resolve) => {
-      (url.indexOf("https") === 0 ? https : http).get(url, async (res) => {
+    return new Promise(resolve => {
+      (url.indexOf("https") === 0 ? https : http).get(url, async res => {
         await this.putObject(key, res, options);
         resolve(this.getSignUrl(key));
       });
