@@ -22,7 +22,7 @@ const TEST_KEY = "OSSClient.data";
 const TEST_DATA = Date.now() + "";
 const TEST_URL = "http://mat1.gtimg.com/pingjs/ext2020/qqindex2018/dist/img/qq_logo_2x.png";
 
-function getFile(url: string) {
+function getFile(url: string): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     return http.get(url, res => {
       const buffers: any[] = [];
@@ -33,7 +33,7 @@ function getFile(url: string) {
   });
 }
 
-describe("OSSClient", async () => {
+describe("OSSClient", function() {
   const SHARE: any = {};
 
   beforeAll(async () => {
@@ -115,11 +115,26 @@ describe("OSSClient", async () => {
     const dis = await getFile(TEST_URL);
     expect(dis).toEqual(org);
   });
+});
 
-  test("fix: get key with multi-///", async () => {
+describe("fix", function() {
+  test("fix: get key with multi-///", () => {
     (client as any).prefix = undefined;
     const key = (client as any).getFileKey("//aa/a");
     expect(key).toEqual("aa/a");
     (client as any).prefix = process.env.TEST_OSS_PREFEX;
+  });
+
+  test("fix: key with space", async () => {
+    const KEY = "OSS Client.data";
+    const ret = await client.putObject(KEY, Buffer.from(TEST_DATA));
+    expect(ret.code).toBe(200);
+    expect(ret.headers.etag).toBeDefined();
+    expect(ret.headers["x-oss-hash-crc64ecma"]).toBeDefined();
+    expect(ret.headers["content-md5"]).toBeDefined();
+    const ret2 = await client.deleteObject(KEY);
+    expect(ret2.code).toBe(204);
+    const ret3 = await client.headObject(KEY);
+    expect(ret3.code).toBe(404);
   });
 });

@@ -6,7 +6,7 @@
 import assert from "assert";
 import crypto from "crypto";
 import http, { Agent } from "http";
-import https from "https";
+import https, { RequestOptions } from "https";
 import { Readable } from "stream";
 import { extname } from "path";
 import { getType } from "mime";
@@ -96,7 +96,7 @@ export default class OSSClient {
     return res.replace(/^\/+/, "");
   }
 
-  private request(params: any, data?: Buffer | Readable, raw = false): Promise<IReply> {
+  private request(params: RequestOptions, data?: Buffer | Readable, raw = false): Promise<IReply> {
     return new Promise((resolve, reject) => {
       const req = http.request(params, response => {
         const buffers: any[] = [];
@@ -141,7 +141,7 @@ export default class OSSClient {
     const sign = this.sign(method, options.md5 || "", type || "", date, filekey);
     const option = {
       hostname: `${this.bucket}.${this.endpoint}`,
-      path: `/${filekey}`,
+      path: encodeURI(`/${filekey}`),
       method: method,
       headers: {
         Date: date,
